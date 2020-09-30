@@ -1,74 +1,66 @@
-.blinkme{
-    animation-name: blink;
-    animation-iteration-count: infinite;
-    animation-duration: 0.6s;
-    font-weight: 900;
-}
-.blinkme3{
-    animation-name: blink3;
-    animation-iteration-count: infinite;
-    animation-duration: 0.8s;
-    font-weight: 900;
-    color:  red;
-}
-@keyframes blink3{
-    0%{opacity: 0.8;}
-    50%{opacity: 0.6;}
-    100%{opacity: 0.8;}
-}
-@keyframes blink{
-    0%{color: orange;}
-    100%{color:transparent;}
-}
+var TxtType = function(el, toRotate, period) {
+        this.toRotate = toRotate;
+        this.el = el;
+        this.loopNum = 0;
+        this.period = parseInt(period, 10) || 2000;
+        this.txt = '';
+        this.tick();
+        this.isDeleting = false;
+    };
 
-.typewriter {
-    width: 30%;
-    display: block;
-    font-size: 14pt;
-    color: white;
-    font-family: myFirstFont;
-    overflow: hidden; /* Ensures the content is not revealed until the animation */
-    white-space: nowrap; /* Keeps the content on a single line */
-    margin:0; /* Gives that scrolling effect as the typing happens */
-    letter-spacing: .13em; /* Adjust as needed */
-    animation:
-      typing 1.5s steps(30, end);
-      
+    TxtType.prototype.tick = function() {
+        var i = this.loopNum % this.toRotate.length;
+        var fullTxt = this.toRotate[i];
+
+        if (this.isDeleting) {
+        this.txt = fullTxt.substring(0, this.txt.length - 1);
+        } else {
+        this.txt = fullTxt.substring(0, this.txt.length + 1);
+        }
+
+        this.el.innerHTML = '<span class="wrap">'+this.txt+'</span>';
+
+        var that = this;
+        var delta = 200 - Math.random() * 100;
+
+        if (this.isDeleting) { delta /= 2; }
+
+        if (!this.isDeleting && this.txt === fullTxt) {
+        delta = this.period;
+        this.isDeleting = true;
+        } else if (this.isDeleting && this.txt === '') {
+        this.isDeleting = false;
+        this.loopNum++;
+        delta = 500;
+        }
+
+        setTimeout(function() {
+        that.tick();
+        }, delta);
+    };
+
+    window.onload = function() {
+        var elements = document.getElementsByClassName('typewrite');
+        for (var i=0; i<elements.length; i++) {
+            var toRotate = elements[i].getAttribute('data-type');
+            var period = elements[i].getAttribute('data-period');
+            if (toRotate) {
+              new TxtType(elements[i], JSON.parse(toRotate), period);
+            }
+        }
+        // INJECT CSS
+        var css = document.createElement("style");
+        css.type = "text/css";
+        css.innerHTML = ".typewrite > .wrap { border-right: 0.08em solid #fff}";
+        document.body.appendChild(css);
+    };
+
+function change(id, todo){
+  if(todo.toLowerCase() === "over"){
+    var toChange = document.getElementById(id);
+    toChange.style="color: #32CD32";
+  }else{
+    var toChange = document.getElementById(id);
+    toChange.style="color: #FFFFFF";
   }
-  .typewriter2 h1 {
-    width: 100%;
-    display: block;
-    font-size: 14pt;
-    color: #fff;
-    font-family: myFirstFont;
-    overflow: hidden; /* Ensures the content is not revealed until the animation */
-    border-right: .15em solid orange; /* The typwriter cursor */
-    white-space: nowrap; /* Keeps the content on a single line */
-    margin:0; /* Gives that scrolling effect as the typing happens */
-    letter-spacing: .11em; /* Adjust as needed */
-    animation:
-      typing2 1.5s steps(30, end),
-      blink-caret2 .5s step-end infinite;
-  }
-  
-  .blinkme2{
-      animation: blink-caret .5s step-end infinite;
-  }
-  /* The typing effect */
-@keyframes typing {
-    from { width: 0 }
-    to { width: 30% }
-  }
-  @keyframes typing2 {
-    from { width: 0 }
-    to { width: 40% }
-  }
-  @keyframes blink-caret2 {
-    from, to {border-right-color: transparent }
-    50% { border-right-color: orange }
-  }
-  /* The typewriter cursor effect */
-  @keyframes blink-caret {
-    from, to {color: transparent }
-    50% { color: orange }
-  }
+}
